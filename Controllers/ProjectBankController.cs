@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using MediatR;
 using System.Threading.Tasks;
 using InfoTecBackEnd.Models;
 using Microsoft.AspNetCore.Mvc;
+using InfoTecBackEnd.Models.RquestBankProject;
+using System.Collections.Generic;
 
 namespace InfoTecBackEnd.Controllers
 {
@@ -11,18 +11,20 @@ namespace InfoTecBackEnd.Controllers
     [ApiController]
     public class ProjectBankController : ControllerBase
     {
-        BankProjectModel bank = null;
-        public ProjectBankController() {
-            bank = new BankProjectModel() {Id = 1, Nombre = "joel",  Direccion = "lo que sea"};
+        private readonly IMediator mediator;
+       // BankProjectModel bank = null;
+        public ProjectBankController(IMediator mediator) {
+            this.mediator = mediator;
+          //  bank = new BankProjectModel() {Id = 1, Nombre = "joel",  Direccion = "lo que sea"};
         }
         // GET api/values
         [HttpGet]
-        public ActionResult<BankProjectModel> Get()
+        public Task<List<BankProjectModel>> Get()
         {
-            if (bank == null) {
-                return NotFound();
-            }
-            return bank;
+           
+            var query = new GetAllBankProjectRequest();
+            var resultado = mediator.Send(query);
+            return resultado;
         }
 
         // GET api/values/5
@@ -34,8 +36,10 @@ namespace InfoTecBackEnd.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult<BankProjectModel>> CreateProject([FromBody] BankProjectRequest value)
         {
+            var person = await mediator.Send(value);
+            return person;
         }
 
         // PUT api/values/5
